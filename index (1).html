@@ -1,0 +1,22 @@
+
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Music Finder</title>
+<style>
+body{margin:0;background:#0d0d10;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:900px;margin:auto;padding:24px}.box{background:#17171c;border:1px solid #2d2d35;border-radius:18px;padding:18px}
+h1{margin:0 0 6px;font-size:28px}p{color:#aaa}.search{display:flex;gap:10px;margin:18px 0}.search input{flex:1;padding:15px;border-radius:12px;border:1px solid #3b3b44;background:#0e0e12;color:white;font-size:16px}.search button,.dl{border:0;border-radius:12px;padding:12px 16px;background:#fff;color:#111;font-weight:700}.card{margin-top:12px;padding:15px;border:1px solid #303039;border-radius:14px;background:#121217}.meta{color:#aaa;font-size:13px;margin:5px 0 12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.link{color:#ddd;text-decoration:none;border:1px solid #444;padding:10px 12px;border-radius:10px}.note{font-size:13px;color:#999;margin-top:18px;line-height:1.5}
+</style></head><body><div class="wrap"><div class="box">
+<h1>🎵 Music Finder</h1><p>Search music from sources that expose authorized/open media.</p>
+<div class="search"><input id="q" placeholder="Song, artist, album..."><button onclick="go()">Search</button></div>
+<div id="status"></div><div id="results"></div>
+<div class="note">Downloads are limited to files the provider exposes. Commercial songs that are stream-only or protected are shown as source links, not bypassed or converted.</div>
+</div></div>
+<script>
+async function go(){const q=document.getElementById('q').value.trim();if(!q)return;status.textContent='Searching...';results.innerHTML='';
+try{const r=await fetch('/api/search?q='+encodeURIComponent(q));const d=await r.json();status.textContent=d.results.length?d.results.length+' results':'No results';results.innerHTML=d.results.map(x=>`
+<div class="card"><b>${esc(x.title)}</b><div class="meta">${esc(x.artist||'Unknown')} · ${esc(x.source)} ${x.year?'· '+esc(x.year):''}</div>
+<div class="actions"><a class="dl" href="${x.download}">⬇ Download / Open</a><a class="link" target="_blank" href="${x.source_url}">Source</a></div></div>`).join('')}
+catch(e){status.textContent='Search error: '+e}}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+q.addEventListener('keydown',e=>{if(e.key==='Enter')go()})
+</script></body></html>
